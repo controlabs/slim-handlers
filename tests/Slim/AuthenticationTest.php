@@ -4,8 +4,8 @@ namespace Controlabs\Test\SlimHandler;
 
 use Controlabs\Helper\JWT;
 use Controlabs\Http\Exception\Unauthorized;
-use Controlabs\SlimHandler\Authentication;
-use Controlabs\Test\AbstractTestCase;
+use Controlabs\Handler\Slim\Authentication;
+use Controlabs\Test\Handler\AbstractTestCase;
 use Slim\Http\Request;
 use Slim\Http\Response;
 

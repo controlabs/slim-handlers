@@ -1,6 +1,6 @@
 <?php
 
-namespace Controlabs\Test;
+namespace Controlabs\Test\Handler;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

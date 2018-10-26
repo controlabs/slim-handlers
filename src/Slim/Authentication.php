@@ -1,6 +1,6 @@
 <?php
 
-namespace Controlabs\SlimHandler;
+namespace Controlabs\Handler\Slim;
 
 use Controlabs\Http\Exception\Unauthorized;
 use Slim\Http\Request;
