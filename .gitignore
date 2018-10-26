@@ -2,3 +2,4 @@ vendor/
 .idea/
 coverage-report.xml
 composer.lock
+cli/
