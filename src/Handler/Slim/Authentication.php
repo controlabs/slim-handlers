@@ -10,25 +10,47 @@ use Controlabs\Helper\JWT as JWTHelper;
 class Authentication
 {
     private $jwtHelper;
+    private $public;
 
-    public function __construct(JWTHelper $jwtHelper)
+    public function __construct(JWTHelper $jwtHelper, array $public = [])
     {
         $this->jwtHelper = $jwtHelper;
+        $this->public = $public;
     }
 
     public function __invoke(Request $request, Response $response, $next)
     {
-        $token = $this->token($request);
-        $payload = $this->decodeToken($token);
+        try {
+            $token = $this->token($request);
+            $payload = $this->decodeToken($token);
 
-        unset($payload['iss']);
-        unset($payload['aud']);
-        unset($payload['sub']);
-        unset($payload['exp']);
+            unset($payload['iss']);
+            unset($payload['aud']);
+            unset($payload['sub']);
+            unset($payload['exp']);
 
-        $request = $request->withAttributes($payload);
+            $request = $request->withAttributes($payload);
+        } catch (Unauthorized $exception) {
+            $this->handleException($request, $exception);
+        }
 
         return $next($request, $response);
+    }
+
+    protected function handleException(Request $request, Unauthorized $unauthorized)
+    {
+        if (!$this->isPublic($request)) {
+            throw $unauthorized;
+        }
+    }
+
+    protected function isPublic(Request $request)
+    {
+        if (!$route = $request->getAttribute('route')) {
+            return false;
+        }
+
+        return in_array($route->getPattern(), $this->public);
     }
 
     protected function decodeToken($token)

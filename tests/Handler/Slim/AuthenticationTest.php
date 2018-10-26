@@ -8,6 +8,7 @@ use Controlabs\Handler\Slim\Authentication;
 use Controlabs\Test\AbstractTestCase;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Route;
 
 class AuthenticationTest extends AbstractTestCase
 {
@@ -101,6 +102,90 @@ class AuthenticationTest extends AbstractTestCase
         $handler = new Authentication($jwtHelper);
 
         $this->assertSame($response, $handler($request, $response, $next));
+
+        $this->assertTrue($nextIsCalled);
+    }
+
+    public function testAuthenticationHandlerWithoutTokenButPublic()
+    {
+        $jwtHelper = $this->mock(JWT::class);
+        $request = $this->mock(Request::class);
+        $response = $this->mock(Response::class);
+        $route = $this->mock(Route::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getAttribute')
+            ->with('route')
+            ->willReturn($route);
+
+        $route
+            ->expects($this->once())
+            ->method('getPattern')
+            ->willReturn('/test/public_pattern');
+
+        $handler = new Authentication($jwtHelper, ['/test/public_pattern']);
+
+        $nextIsCalled = false;
+
+        $next = function (Request $requestTest, Response $responseTest) use ($request, $response, &$nextIsCalled) {
+            $this->assertSame($requestTest, $request);
+            $this->assertSame($responseTest, $response);
+
+            $nextIsCalled = true;
+
+            return $responseTest;
+        };
+
+        $handler($request, $response, $next);
+
+        $this->assertTrue($nextIsCalled);
+    }
+
+    public function testAuthenticationWithExpiredTokenButPublic()
+    {
+        $jwtHelper = $this->mock(JWT::class);
+        $request = $this->mock(Request::class);
+        $response = $this->mock(Response::class);
+        $route = $this->mock(Route::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getHeader')
+            ->with('Authorization')
+            ->willReturn(['TEST_TOKEN']);
+
+        $jwtHelper
+            ->expects($this->once())
+            ->method('decode')
+            ->with('TEST_TOKEN', true)
+            ->willReturn(null);
+
+        $request
+            ->expects($this->once())
+            ->method('getAttribute')
+            ->with('route')
+            ->willReturn($route);
+
+        $route
+            ->expects($this->once())
+            ->method('getPattern')
+            ->willReturn('/test/public_pattern');
+
+        $handler = new Authentication($jwtHelper, ['/test/public_pattern']);
+
+        $nextIsCalled = false;
+
+        $next = function (Request $requestTest, Response $responseTest) use ($request, $response, &$nextIsCalled) {
+            $this->assertSame($requestTest, $request);
+            $this->assertSame($responseTest, $response);
+
+            $nextIsCalled = true;
+
+            return $responseTest;
+        };
+
+        $handler($request, $response, $next);
 
         $this->assertTrue($nextIsCalled);
     }
