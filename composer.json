@@ -14,12 +14,12 @@
   "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
-      "Controlabs\\Handler\\": "src/"
+      "Controlabs\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Controlabs\\Test\\Handler\\": "tests/"
+      "Controlabs\\Test\\": "tests/"
     }
   },
   "config": {
