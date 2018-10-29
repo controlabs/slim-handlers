@@ -269,7 +269,7 @@ class AuthenticationTest extends AbstractTestCase
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Invalid RegExp: /*/');
-        
+
         $jwtHelper = $this->mock(JWT::class);
 
         $handler = new Authentication($jwtHelper, []);

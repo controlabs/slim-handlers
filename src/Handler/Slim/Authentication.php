@@ -37,26 +37,15 @@ class Authentication
         return $next($request, $response);
     }
 
-    protected function handleException(Request $request, Unauthorized $unauthorized)
+    protected function token(Request $request)
     {
-        if (!$this->isPublic($request)) {
-            throw $unauthorized;
-        }
-    }
+        $token = $request->getHeader('Authorization')[0] ?? null;
 
-    protected function isPublic(Request $request)
-    {
-        $route = $request->getAttribute('route') ?: '';
-
-        $patterns = $this->getPublicRoutesByMethod($request->getMethod());
-
-        foreach ($patterns as $pattern) {
-            if ($this->match($pattern, $route->getPattern())) {
-                return true;
-            }
+        if (!$token) {
+            throw new Unauthorized();
         }
 
-        return false;
+        return $token;
     }
 
     protected function decodeToken($token)
@@ -70,15 +59,37 @@ class Authentication
         return $payload;
     }
 
-    protected function token(Request $request)
+    protected function handleException(Request $request, Unauthorized $unauthorized)
     {
-        $token = $request->getHeader('Authorization')[0] ?? null;
+        if (!$this->isPublic($request)) {
+            throw $unauthorized;
+        }
+    }
 
-        if (!$token) {
-            throw new Unauthorized();
+    protected function isPublic(Request $request)
+    {
+        $route = $this->route($request);
+
+        $patterns = $this->getPublicRoutesByMethod($request->getMethod());
+
+        foreach ($patterns as $pattern) {
+            if ($this->match($pattern, $route)) {
+                return true;
+            }
         }
 
-        return $token;
+        return false;
+    }
+
+    protected function route(Request $request)
+    {
+        $route = $request->getAttribute('route');
+
+        if (!$route) {
+            return '';
+        }
+
+        return $route->getPattern();
     }
 
     protected function getPublicRoutesByMethod($method)
