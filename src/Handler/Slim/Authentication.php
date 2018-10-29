@@ -46,11 +46,17 @@ class Authentication
 
     protected function isPublic(Request $request)
     {
-        if (!$route = $request->getAttribute('route')) {
-            return false;
+        $route = $request->getAttribute('route') ?: '';
+
+        $patterns = $this->getPublicRoutesByMethod($request->getMethod());
+
+        foreach ($patterns as $pattern) {
+            if ($this->match($pattern, $route->getPattern())) {
+                return true;
+            }
         }
 
-        return in_array($route->getPattern(), $this->public);
+        return false;
     }
 
     protected function decodeToken($token)
@@ -73,5 +79,35 @@ class Authentication
         }
 
         return $token;
+    }
+
+    protected function getPublicRoutesByMethod($method)
+    {
+        /*
+         * 0 - Method
+         * 1 - Pattern
+         */
+
+        $map = function (array $public) use ($method) {
+            return $this->match($public[0], $method) ? $public[1] : '';
+        };
+
+        $patterns = array_map($map, $this->public);
+        $patterns = array_filter($patterns);
+        $patterns = array_values($patterns);
+
+        return $patterns;
+    }
+
+    protected function match($pattern, $str)
+    {
+        $pattern = str_replace("/", "\/", $pattern);
+        $pattern = "/{$pattern}/";
+
+        try {
+            return !!preg_match($pattern, $str);
+        } catch (\Exception $exception) {
+            throw new \Exception('Invalid RegExp: ' . $pattern, 0, $exception);
+        }
     }
 }
