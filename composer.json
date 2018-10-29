@@ -1,6 +1,6 @@
 {
   "name": "controlabs/slim-handlers",
-  "description": "Handlers to user with Slim PHP Microframework",
+  "description": "PHP Slim Framework Handlers",
   "type": "library",
   "require": {
     "controlabs/jwt-helper": "^1.0",
