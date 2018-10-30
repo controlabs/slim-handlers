@@ -32,7 +32,7 @@ build:
     tests:
         override:
             -
-                command: './vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover=coverage-report.xml'
+                command: './cli/phpunit -c phpunit.xml.dist --coverage-clover=coverage-report.xml'
                 coverage:
                     file: 'coverage-report.xml'
                     format: 'php-clover'
