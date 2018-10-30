@@ -3,13 +3,15 @@
 namespace Controlabs\Test\Handler\Slim;
 
 use Controlabs\Handler\Slim\Cors;
+use Controlabs\Test\AbstractTestCase;
 use Controlabs\Test\Handler\Slim\Fixture\NextHandler;
+use FastRoute\Dispatcher;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Route;
 use Slim\Router;
 
-class CorsTest extends \Controlabs\Test\AbstractTestCase
+class CorsTest extends AbstractTestCase
 {
     protected $container;
     protected $request;
@@ -30,7 +32,7 @@ class CorsTest extends \Controlabs\Test\AbstractTestCase
             ->with('route')
             ->willReturn([]);
         $this->request
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getMethod')
             ->willReturn('GET');
 
@@ -91,5 +93,42 @@ class CorsTest extends \Controlabs\Test\AbstractTestCase
         $resp = $handler($this->request, $this->response, $nextHandler);
         $headers = $resp->getHeaders();
         $this->assertEquals($headers['Next-Handler-Executed'], [true]);
+    }
+
+    public function testOptionsRequest()
+    {
+        $handler = new Cors($this->container);
+
+        $this->request
+            ->expects($this->exactly(2))
+            ->method('getMethod')
+            ->willReturn('OPTIONS');
+
+        $router = $this->mock(Router::class);
+        $router
+            ->expects($this->once())
+            ->method('dispatch')
+            ->willReturn([
+                Dispatcher::METHOD_NOT_ALLOWED,
+                [
+                    'GET', 'POST'
+                ]
+            ]);
+
+        $this->container
+            ->expects($this->once())
+            ->method('get')
+            ->with('router')
+            ->willReturn($router);
+
+        $response = $handler($this->request, $this->response, null);
+
+        $expected = [
+            'Access-Control-Allow-Origin' => ['*'],
+            'Access-Control-Allow-Headers' => [implode(',', Cors::HEADERS)],
+            'Access-Control-Allow-Methods' => ['GET,POST,OPTIONS']
+        ];
+
+        $this->assertSame($expected, $response->getHeaders());
     }
 }

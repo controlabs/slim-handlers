@@ -2,9 +2,10 @@
 
 namespace Controlabs\Handler\Slim;
 
-use Psr\Container\ContainerInterface;
-use Slim\Http\Request;
-use Slim\Http\Response;
+use FastRoute\Dispatcher;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Router;
 
 class Cors
 {
@@ -18,7 +19,7 @@ class Cors
 
     protected $container;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct($container)
     {
         $this->container = $container;
     }
@@ -29,31 +30,45 @@ class Cors
             $response = $next($request, $response);
         }
 
-        $methods = $this->methods($request);
-
         return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', implode(',', self::HEADERS))
-            ->withHeader('Access-Control-Allow-Methods', implode(',', $methods));
+            ->withHeader('Access-Control-Allow-Methods', implode(',', $this->methods($request)));
     }
 
-    private function methods(Request $request): array
+    protected function methods(Request $request)
     {
-        $methods = [];
+        $methods = $this->optionsMethods($request);
 
-        if ($route = $request->getAttribute('route')) {
-            $pattern = $route->getPattern();
+        $currentRoute = $request->getAttribute('route');
 
-            $router = $this->container->get('router');
-            foreach ($router->getRoutes() as $route) {
-                if ($pattern === $route->getPattern()) {
-                    $methods = array_merge_recursive($methods, $route->getMethods());
-                }
-            }
-        } else {
-            // Methods holds all of the HTTP Verbs that a particular route handles.
-            $methods[] = $request->getMethod();
+        if (empty($currentRoute)) {
+            return array_merge($methods, [$request->getMethod()]);
         }
+
+        $pattern = $currentRoute->getPattern();
+
+        foreach ($this->router()->getRoutes() as $route) {
+            $pattern === $route->getPattern()
+            and $methods = array_merge_recursive($methods, $route->getMethods());
+        }
+
         return $methods;
+    }
+
+    protected function optionsMethods(Request $request)
+    {
+        if ('OPTIONS' !== $request->getMethod()) {
+            return [];
+        }
+
+        list($status, $allowedMethods) = $this->router()->dispatch($request);
+
+        return Dispatcher::METHOD_NOT_ALLOWED == $status ? $allowedMethods : [];
+    }
+
+    protected function router(): Router
+    {
+        return $this->container->get('router');
     }
 }
