@@ -12,14 +12,20 @@
 [![Latest Unstable Version](https://poser.pugx.org/controlabs/slim-handlers/v/unstable)](https://packagist.org/packages/controlabs/slim-handlers)
 [![composer.lock](https://poser.pugx.org/controlabs/slim-handlers/composerlock)](https://packagist.org/packages/controlabs/slim-handlers)
 
-Slim Framework handlers
+Slim Framework Handlers
+
+## Installation
+
+```
+composer require controlabs/slim-handlers
+```
 
 ## Handlers
 
-### Authentication
+- **Authentication** An authentication JWT handler
+- **Cors** A CORS handler
 
-An authentication JWT handler
 
 ## License
 
-This software is open source, licensed under the The MIT License (MIT). See [LICENSE](https://github.com/controlabs/slim-handlers/blob/master/LICENSE) for detail
+This software is open source, licensed under the The MIT License (MIT). See [LICENSE](https://github.com/controlabs/slim-handlers/blob/master/LICENSE) for details.
