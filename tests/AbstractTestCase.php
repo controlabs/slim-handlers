@@ -4,6 +4,7 @@ namespace Controlabs\Test;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 
 abstract class AbstractTestCase extends TestCase
 {
@@ -11,6 +12,14 @@ abstract class AbstractTestCase extends TestCase
     {
         return $this
             ->getMockBuilder($class)
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    protected function container(): ContainerInterface
+    {
+        return $this
+            ->getMockBuilder(ContainerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
     }

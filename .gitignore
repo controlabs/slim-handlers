@@ -1,5 +1,7 @@
 vendor/
 .idea/
+cli/
+
+phpunit.xml
 coverage-report.xml
 composer.lock
-cli/

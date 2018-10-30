@@ -2,6 +2,8 @@
   "name": "controlabs/slim-handlers",
   "description": "PHP Slim Framework Handlers",
   "type": "library",
+  "license": "MIT",
+  "minimum-stability": "stable",
   "require": {
     "controlabs/jwt-helper": "^1.0",
     "controlabs/http-exceptions": "^1.0"
@@ -10,8 +12,6 @@
     "slim/slim": "^3.11",
     "phpunit/phpunit": "^7.4"
   },
-  "license": "MIT",
-  "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
       "Controlabs\\": "src/"
@@ -24,5 +24,11 @@
   },
   "config": {
     "bin-dir": "cli"
+  },
+  "scripts": {
+    "cs": "phpcs --standard=PSR2 src",
+    "test": "phpunit -c phpunit.xml --colors=always",
+    "test-cover": "phpunit --coverage-text",
+    "phpstan": "phpstan analyse src --level=7"
   }
 }

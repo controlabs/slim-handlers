@@ -1,6 +1,6 @@
 <?php
 
-namespace Controlabs\Test\SlimHandler;
+namespace Controlabs\Test\Handler\Slim;
 
 use Controlabs\Helper\JWT;
 use Controlabs\Http\Exception\Unauthorized;
